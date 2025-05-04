@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+  .chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    width: 400px;
+    height: 400px;
+    transform: rotate(0deg); /* No rotation by default */
+    transition: transform 0.3s ease;  /* Smooth transition when rotating */
+}
+
+.chessboard.flipped {
+    transform: rotate(180deg); /* Rotate the board for black's perspective */
+}
+
+.square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.piece.white {
+    color: white;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));  /* Add shadow for better visibility */
+}
+
+.piece.black {
+    color: black;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));  /* Add shadow for contrast */
+}
+
+.piece {
+    font-size: 36px;
+    cursor: pointer;
+    font-family: 'Arial', sans-serif; /* Or use a chess font if you prefer */
+}
+
+.piece.draggable {
+    cursor: grab;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.square.light {
+    background-color: #f0d9b5;
+}
+
+.square.dark {
+    background-color: #b58863;
+}
+
+.flipped .piece {
+    transform: rotate(180deg); /* Rotate individual pieces for the black player*/
+}
+.piece.draggable {
+    cursor: grab;
+}
+
+.piece.dragging {
+    opacity: 0.5;
+    z-index: 1; /* Bring the dragged piece above others */
+    transition: all 0.1s ease-out;
+}
+
+
+
+</style>
+   
+</head>
+</head>
+<body>
+ <div class ="w-full h-screen flex justify-center
+ items-center  bg-zinc-900">
+  <div class ="chessboard w-96 h-96 bg-red-400"></div>
+ </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="/js/chessgame.js"></script>
+</body>
+</html>

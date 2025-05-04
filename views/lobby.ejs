@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Game Lobby</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+    body {
+      background-color: #1f2937;
+      color: #f3f4f6;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    .game-card {
+      background-color: #374151;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .game-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn {
+      transition: all 0.2s ease;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background-color: #4f46e5;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    
+    .btn-secondary {
+      background-color: #10b981;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #059669;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-8">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold mb-2">Chess Game Lobby</h1>
+      <p class="text-xl text-gray-400">Create a new game or join an existing one</p>
+    </header>
+    
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Create Game Section -->
+      <div class="w-full md:w-1/2 bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-2xl font-bold mb-4">Create New Game</h2>
+        <form id="create-game-form" class="space-y-4">
+          <div>
+            <label for="game-name" class="block text-sm font-medium text-gray-400 mb-1">Game Name</label>
+            <input type="text" id="game-name" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter a name for your game" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-1">Choose Your Side</label>
+            <div class="flex space-x-4">
+              <label class="inline-flex items-center">
+                <input type="radio" name="side" value="w" class="form-radio text-indigo-600" checked>
+                <span class="ml-2">White</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="side" value="b" class="form-radio text-indigo-600">
+                <span class="ml-2">Black</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" name="side" value="r" class="form-radio text-indigo-600">
+                <span class="ml-2">Random</span>
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-full py-2 px-4 rounded-md font-medium">Create Game</button>
+        </form>
+      </div>
+      
+      <!-- Available Games Section -->
+      <div class="w-full md:w-1/2 bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-2xl font-bold mb-4">Available Games</h2>
+        <div id="games-list" class="space-y-4">
+          <!-- Games will be populated here by JavaScript -->
+          <p id="no-games-message" class="text-gray-500 text-center py-8">No games available. Create one to get started!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>

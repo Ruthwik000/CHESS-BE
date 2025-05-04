@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Game - <%= gameName %></title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style>
+  .chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    width: 400px;
+    height: 400px;
+    transform: rotate(0deg); /* No rotation by default */
+    transition: transform 0.3s ease;  /* Smooth transition when rotating */
+  }
+
+  .chessboard.flipped {
+    transform: rotate(180deg); /* Rotate the board for black's perspective */
+  }
+
+  .square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .piece.white {
+    color: white;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));  /* Add shadow for better visibility */
+  }
+
+  .piece.black {
+    color: black;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));  /* Add shadow for contrast */
+  }
+
+  .piece {
+    font-size: 36px;
+    cursor: pointer;
+    font-family: 'Arial', sans-serif; /* Or use a chess font if you prefer */
+  }
+
+  .piece.draggable {
+    cursor: grab;
+  }
+
+  .dragging {
+    opacity: 0.5;
+  }
+
+  .square.light {
+    background-color: #f0d9b5;
+  }
+
+  .square.dark {
+    background-color: #b58863;
+  }
+
+  .flipped .piece {
+    transform: rotate(180deg); /* Rotate individual pieces for the black player*/
+  }
+  
+  .piece.draggable {
+    cursor: grab;
+  }
+
+  .piece.dragging {
+    opacity: 0.5;
+    z-index: 1; /* Bring the dragged piece above others */
+    transition: all 0.1s ease-out;
+  }
+
+  /* Game info styles */
+  .game-info {
+    background-color: #374151;
+    border-radius: 0.5rem;
+  }
+
+  .player-info {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+  }
+
+  .player-white {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+
+  .player-black {
+    background-color: #1f2937;
+    color: #f3f4f6;
+  }
+
+  .active-player {
+    border: 2px solid #10b981;
+  }
+
+  .btn {
+    transition: all 0.2s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  </style>
+</head>
+<body class="bg-zinc-900 text-white">
+  <div class="container mx-auto px-4 py-8">
+    <header class="text-center mb-6">
+      <h1 class="text-3xl font-bold"><%= gameName %></h1>
+      <p class="text-gray-400">Game ID: <%= gameId %></p>
+    </header>
+
+    <div class="flex flex-col md:flex-row justify-center items-start gap-8">
+      <!-- Game Board -->
+      <div class="flex flex-col items-center">
+        <div class="chessboard w-96 h-96 shadow-lg"></div>
+        <div class="mt-4 flex gap-4">
+          <button id="resign-btn" class="btn bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md font-medium">Resign</button>
+          <button id="draw-btn" class="btn bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded-md font-medium">Offer Draw</button>
+          <a href="/lobby" class="btn bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-md font-medium text-center">Back to Lobby</a>
+        </div>
+      </div>
+
+      <!-- Game Info -->
+      <div class="game-info w-full md:w-64 p-4">
+        <h2 class="text-xl font-bold mb-4">Game Info</h2>
+        
+        <div class="space-y-4">
+          <div id="player-white" class="player-info player-white">
+            <span class="text-3xl mr-2">♔</span>
+            <div>
+              <div class="font-medium">White</div>
+              <div id="white-status" class="text-sm">Waiting...</div>
+            </div>
+          </div>
+          
+          <div id="player-black" class="player-info player-black">
+            <span class="text-3xl mr-2">♚</span>
+            <div>
+              <div class="font-medium">Black</div>
+              <div id="black-status" class="text-sm">Waiting...</div>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <h3 class="font-medium mb-2">Game Status</h3>
+            <div id="game-status" class="text-sm p-2 bg-gray-700 rounded">Waiting for players...</div>
+          </div>
+          
+          <div class="mt-4">
+            <h3 class="font-medium mb-2">Move History</h3>
+            <div id="move-history" class="text-sm p-2 bg-gray-700 rounded h-40 overflow-y-auto">
+              <!-- Move history will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" integrity="sha512-xRllwz2gdZciIB+AkEbeq+gVhX8VB8XsfqeFbUh+SzHlN96dEduwtTuVuc2u9EROlmW9+yhRlxjif66ORpsgVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Pass game data to the client-side script
+    const gameId = "<%= gameId %>";
+  </script>
+  <script src="/js/chessgame.js"></script>
+</body>
+</html>
